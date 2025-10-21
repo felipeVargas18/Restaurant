@@ -3,8 +3,10 @@ package restaurant;
 import java.util.*;
 
 /**
- * Proyecto: Gestión de pedidos de restaurante (sin VIP)
- * Modo interactivo (CLI) + simulación aleatoria
+ * 
+ * Autores: Luis Felipe Vargas / Pablo Otalora
+ * Proyecto: Gestión de pedidos de restaurante
+ * Modomaual + simulación aleatoria
  *
  * Estructuras usadas (>=3):
  *   - Arreglo (array)         : MenuItem[] (menú) e int[] (ítems del pedido)
