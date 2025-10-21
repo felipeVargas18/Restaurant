@@ -101,8 +101,11 @@ public class Restaurant {
         int despacharTodoBuffer() {
             int k=0;
             while(!colaDespacho.isEmpty()){
-                Pedido p=colaDespacho.pollFirst();
-                log("DESPACHADO " + p.id + " {" + p.cliente + "}");
+                Pedido p = colaDespacho.pollFirst();
+                long total = totalPedido(p);
+                log("DESPACHADO " + p.id + " {" + p.cliente + "}"
+                    + " | Items: " + itemsStr(p)
+                    + " | Total: " + UI.moneyCOP(total));
                 k++;
             }
             return k;
@@ -121,7 +124,16 @@ public class Restaurant {
             for (MenuItem mi: menu) if (mi!=null && mi.codigo==cod) return mi;
             return null;
         }
-
+        String itemsStr(Pedido p) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < p.items.length; i++) {
+                MenuItem mi = buscarItemPorCodigo(p.items[i]);
+                sb.append(mi != null ? mi.nombre : ("#" + p.items[i]));
+                if (i < p.items.length - 1) sb.append(", ");
+            }
+            return sb.toString();
+        }
+        
         void reporte() {
             UI.clear();
             UI.banner("REPORTE");
@@ -155,12 +167,12 @@ public class Restaurant {
 
         final String[] OPTS = {
             "Ver menú",
-            "Ingresar pedido (manual)",
-            "Iniciar hasta N (prioridad → cocina FIFO)",
-            "Terminar algunos (cocina FIFO → despacho)",
+            "Ingresar pedido ",
+            "Iniciar Prioridad ",
+            "Terminar Linea de Produccion",
             "Despachar todo el buffer",
             "Ver reporte",
-            "Simular ahora (aleatorio, hasta 20)",
+            "Simular de Pedidos",
             "Salir"
         };
 
@@ -189,7 +201,7 @@ public class Restaurant {
                     UI.banner("Ingresar pedido");
                     System.out.print("Nombre del cliente: ");
                     String nombre = sc.nextLine().trim();
-                    int canalNum = leerEnteroRango(sc, 1, 3, "Canal (1=COMEDOR, 2=PARA_LLEVAR, 3=DOMICILIO): ");
+                    int canalNum = leerEnteroRango(sc, 1, 3, "Canal (1 = COMEDOR, 2 = PARA LLEVAR, 3 = DOMICILIO): ");
                     Canal canal = canalNum==1? Canal.DINE_IN : canalNum==2? Canal.PARA_LLEVAR : Canal.DOMICILIO;
 
                     System.out.print("Códigos de ítems (p. ej., 10,50,60): ");
@@ -213,7 +225,7 @@ public class Restaurant {
                 case 3: { // Iniciar hasta N
                     UI.clear();
                     UI.banner("Iniciar preparación");
-                    int n = leerEnteroRango(sc, 1, 5, "¿Cuántos chefs (1..5)? ");
+                    int n = leerEnteroRango(sc, 1, 5, "¿Cuantos cocineros en paralelo? ");
                     int k = gestor.iniciarHasta(n, ronda++);
                     System.out.println("Iniciados " + k + " pedidos.");
                     pauseEnter(sc);
@@ -223,7 +235,7 @@ public class Restaurant {
                 case 4: { // Terminar algunos
                     UI.clear();
                     UI.banner("Terminar pedidos");
-                    int n = leerEnteroRango(sc, 1, 5, "¿Cuántos chefs (1..5)? ");
+                    int n = leerEnteroRango(sc, 1, 5, "¿Cuantos cocineros en paralelo? ");
                     int k = gestor.terminarAlgunos(rng, n, ronda++);
                     System.out.println("Terminados " + k + " pedidos.");
                     pauseEnter(sc);
@@ -246,8 +258,8 @@ public class Restaurant {
 
                 case 7: { // Simulación
                     UI.clear();
-                    UI.banner("Simulación (hasta 20)");
-                    int n = leerEnteroRango(sc, 1, 20, "¿Cuántos pedidos (1..20)? ");
+                    UI.banner("Simulación ");
+                    int n = leerEnteroRango(sc, 1, 20, "¿Cuántos pedidos desea simular? ");
                     for (int i=0;i<n;i++){
                         String nombre = "Cli"+(i+1);
                         int pick = rng.nextInt(100);
@@ -264,7 +276,7 @@ public class Restaurant {
                     int started = gestor.iniciarHasta(Math.min(5,n), ronda++);
                     int finished = gestor.terminarAlgunos(rng, Math.min(5,n), ronda++);
                     gestor.despacharTodoBuffer();
-                    System.out.println("Simulación: iniciados=" + started + ", terminados=" + finished);
+                    System.out.println("Simulación: iniciados =" + started + ", terminados =" + finished);
                     pauseEnter(sc);
                     break;
                 }

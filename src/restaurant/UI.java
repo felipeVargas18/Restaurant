@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Arrays;
 
-/** Utilidades de UI para CLI. (Compatible Java 8: sin String.repeat ni var) */
+/** Utilidades de UI para CLI. */
 public final class UI {
     private UI() {}
 
@@ -21,7 +21,7 @@ public final class UI {
         System.out.flush();
     }
 
-    // Utilidad: repetir un caracter n veces (equivalente a "x".repeat(n))
+    // ---- helper Java 8: reemplaza "String.repeat" ----
     private static String rep(char ch, int n) {
         if (n <= 0) return "";
         char[] arr = new char[n];
@@ -69,9 +69,7 @@ public final class UI {
         int cols = header.length;
         int[] w = new int[cols];
         for (int j = 0; j < cols; j++) w[j] = header[j].length();
-        for (String[] r : rows) {
-            for (int j = 0; j < cols; j++) if (r[j] != null) w[j] = Math.max(w[j], r[j].length());
-        }
+        for (String[] r : rows) for (int j = 0; j < cols; j++) if (r[j] != null) w[j] = Math.max(w[j], r[j].length());
 
         StringBuilder top = new StringBuilder("┌");
         StringBuilder mid = new StringBuilder("├");
@@ -106,13 +104,6 @@ public final class UI {
     public static String moneyCOP(long value) {
         return NumberFormat.getCurrencyInstance(new Locale("es", "CO")).format(value);
     }
-    private static String pad(String s, int w) {
-        if (s == null) s = "";
-        return s.length() >= w ? s : s + rep(' ', w - s.length());
-    }
-    private static int longestLineLen(String[] lines) {
-        int m = 0;
-        for (String s : lines) if (s != null) m = Math.max(m, s.length());
-        return m;
-    }
+    private static String pad(String s, int w) { if (s == null) s = ""; return s.length() >= w ? s : s + rep(' ', w - s.length()); }
+    private static int longestLineLen(String[] lines) { int m = 0; for (String s : lines) if (s != null) m = Math.max(m, s.length()); return m; }
 }
